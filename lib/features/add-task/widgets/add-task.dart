@@ -1,9 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:taskati/core/utls/app-colors.dart';
 import 'package:taskati/features/add-task/widgets/custom-textfromfield-withtitle.dart';
 
-class Addtask extends StatelessWidget {
+class Addtask extends StatefulWidget {
   const Addtask({Key? key}) : super(key: key);
+
+  @override
+  State<Addtask> createState() => _AddtaskState();
+}
+
+class _AddtaskState extends State<Addtask> {
+  late TextEditingController _dateController;
+  late TextEditingController _timeController;
+  late TextEditingController _endTimeController;
+  late TextEditingController _titleController;
+  late TextEditingController _descriptionController;
+  @override
+  void initState() {
+    _dateController = TextEditingController();
+    _timeController = TextEditingController();
+    _titleController = TextEditingController();
+    _descriptionController = TextEditingController();
+    _endTimeController = TextEditingController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _dateController.dispose();
+    _timeController.dispose();
+    _titleController.dispose();
+    _descriptionController.dispose();
+    _endTimeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,20 +57,16 @@ class Addtask extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Customtextfromfieldwithtitle(
+              controller: _titleController,
               enabled: true,
-              () {}, // Provide
               title: 'Task Title',
               hintText: 'Enter Task Title',
               suffixicon: null,
               readonly: true,
-              ontap: () {
-                // Add your nonTap logic here
-              },
             ),
             SizedBox(height: 20),
             Customtextfromfieldwithtitle(
-              () {}, // Provide the required positional argument
-              ontap: () => null,
+              controller: _descriptionController,
               title: 'Task Description',
               hintText: 'Enter Task Description',
               suffixicon: null,
@@ -49,25 +76,15 @@ class Addtask extends StatelessWidget {
             SizedBox(height: 20),
             GestureDetector(
               onTap: () {
-                showDatePicker(
-                  context: context,
-                  firstDate: DateTime.now(),
-                  lastDate: DateTime(2026),
-                );
+                _pickDate();
               },
               child: Customtextfromfieldwithtitle(
-                () {}, // Provide the required positional argument
                 enabled: false,
                 title: 'Task Date',
+                controller: _dateController,
                 hintText: '12/10/2021',
                 suffixicon: Icon(Icons.calendar_today),
                 readonly: false,
-                ontap: () {
-                  showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay.now(),
-                  );
-                },
               ),
             ),
             SizedBox(height: 20),
@@ -76,39 +93,33 @@ class Addtask extends StatelessWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      showTimePicker(context: context, initialTime: TimeOfDay.now());
+                      _pickTime();
                     },
                     child: Customtextfromfieldwithtitle(
-                      () {}, // Provide the required positional argument
-                      enabled: true,
+                      enabled: false,
                       readonly: false,
                       title: 'start time',
-                      hintText: '2:00pm',
+                      hintText: '2:pm',
                       suffixicon: null,
-                      ontap: () {},
+
+                      controller: _timeController,
                     ),
                   ),
                 ),
                 SizedBox(width: 10.0),
                 Expanded(
-                  child: Customtextfromfieldwithtitle(
-                    enabled: true,
-                    () {
-                      showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.now(),
-                      );
+                  child: GestureDetector(
+                    onTap: () {
+                      _pickEndTime();
                     },
-                    readonly: true,
-                    title: 'end time',
-                    hintText: '3:00pm',
-                    suffixicon: null,
-                    ontap: () {
-                      showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.now(),
-                      );
-                    },
+                    child: Customtextfromfieldwithtitle(
+                      enabled: false,
+                      readonly: true,
+                      title: 'end time',
+                      hintText: '3:00pm',
+                      suffixicon: null,
+                      controller: _endTimeController,
+                    ),
                   ),
                 ),
               ],
@@ -118,5 +129,69 @@ class Addtask extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _pickDate() async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      final formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+      setState(() {
+        _dateController.text = formattedDate;
+      });
+    }
+  }
+
+  void _pickTime() async {
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime != null) {
+      final now = DateTime.now();
+      final formattedTime = DateFormat.jm().format(
+        DateTime(
+          now.year,
+          now.month,
+          now.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        ),
+      );
+
+      setState(() {
+        _timeController.text = formattedTime;
+      });
+    }
+  }
+
+  void _pickEndTime() async {
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime != null) {
+      final now = DateTime.now();
+      final formattedTime = DateFormat.jm().format(
+        DateTime(
+          now.year,
+          now.month,
+          now.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        ),
+      );
+
+      setState(() {
+        _endTimeController.text = formattedTime;
+      });
+    }
   }
 }

@@ -5,14 +5,15 @@ class Customtextfromfieldwithtitle extends StatelessWidget {
   final String hintText;
   final Widget? suffixicon;
   final bool enabled;
-  const Customtextfromfieldwithtitle(Null Function() param0, {
+  final TextEditingController controller;
+  const Customtextfromfieldwithtitle( {
     super.key,
     required this.title,
     required this.hintText,
     required this.suffixicon,
     this.enabled = true,
     required bool readonly,
-    required Null Function() ontap,
+    required this.controller,
   });
   @override
   Widget build(BuildContext context) {
@@ -21,6 +22,7 @@ class Customtextfromfieldwithtitle extends StatelessWidget {
       children: [
         Text(title, style: TextStyle(fontSize: 18)),
         TextFormField(
+          controller: controller,
           decoration: InputDecoration(
             enabled: enabled,
             suffixIcon: suffixicon,
